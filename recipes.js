@@ -1,22 +1,88 @@
-// Read JSON-File from Server
-let recipesJSON;
-let xmlhttp = new XMLHttpRequest();
-xmlhttp.onreadystatechange = function() {
-  if (this.readyState == 4 && this.status == 200) {
-    recipesJSON = JSON.parse(this.responseText);
+// // Read JSON-File from Server
+// let recipesJSON;
+// let xmlhttp = new XMLHttpRequest();
+// xmlhttp.onreadystatechange = function() {
+//   if (this.readyState == 4 && this.status == 200) {
+//     recipesJSON = JSON.parse(this.responseText);
+//   }
+// };
+// xmlhttp.open(
+//   "GET",
+//   "https://rawgit.com/crelder/recipe-shoppinglist-generator/master/recipes.json",
+//   false
+// );
+// xmlhttp.send();
+
+let recipesLocal = {
+  "Rucola Salat": {
+    "ingredients": {
+      "Parmesan": {
+        "amount": 0.5,
+        "unit": "Packung",
+        "department": "Kühlregal"
+      },
+      "Rucola Salat": {
+        "amount": 1,
+        "unit": "Packung",
+        "department": "Obst- und Gemüse"
+      },
+      "Tomaten": {
+        "amount": 1,
+        "unit": "",
+        "department": "Obst- und Gemüse"
+      }
+    },
+    "comment":
+      "Parmesan in hauchdünne Scheiben mit Reibe schaben. Cocktail Tomaten sehen gut darauf aus."
+  },
+  "Griechischer Salat": {
+    "ingredients": {
+      "Gurke": {
+        "amount": 1,
+        "unit": "",
+        "department": "Obst- und Gemüse"
+      },
+      "Tomaten": {
+        "amount": 4,
+        "unit": "",
+        "department": "Obst- und Gemüse"
+      },
+      "Schafskäse": {
+        "amount": 1,
+        "unit": "Packung",
+        "department": "Kühlregal"
+      },
+      "Oliven": {
+        "amount": 12,
+        "unit": "",
+        "department": "Haltbar"
+      },
+      "Zwiebel": {
+        "amount": 1,
+        "unit": "",
+        "department": "Obst- und Gemüse"
+      }
+    },
+    "comment":
+      "ingredients in dicke Scheiben schneiden. Griechenland-Style! Zwiebeln in Ringe schneiden und etwas Salz darüber und kurz stehen lassen. Dann werden die weicher und sind nicht mehr so scharf."
   }
 };
-xmlhttp.open(
-  "GET",
-  "https://rawgit.com/crelder/recipe-shoppinglist-generator/master/recipes.json",
-  false
-);
-xmlhttp.send();
 
+const recipeCollection = recipesLocal;
+console.log(recipesLocal);
 // Random order of recipes
-const recipeCollection = recipesJSON.sort(function() {
-  return 0.5 - Math.random();
-});
+// const recipeCollection = recipesLocal.sort(function() {
+//   return 0.5 - Math.random();
+// });
+
+// const recipeCollection = JSON.parse(recipesLocal);
+
+
+// Kann gelöscht werden
+// console.log("document.location.href: ", document.location.href);
+// console.log("JSON-Objekt", JSON.stringify(recipeCollection, "", 3));
+// console.log("JSON-Objekt", recipeCollection);
+
 
 function createUniqueIngredients(recipes) {
   const ings = {};
@@ -66,7 +132,8 @@ function createIngredientStringforClipboard(recipes) {
 
 function createMenueStringforClipboard(recipes) {
   date = new Date();
-
+  console.log("createMenueStringforClipboard");
+  // hier einfach noch einen Header übergeben
   let menuString = `Menüliste ab dem ${date.toLocaleDateString("de-DE", {
     weekday: "short",
     year: "numeric",
@@ -116,7 +183,7 @@ Vue.component("my-meal", {
     }
   },
   template:
-    '<a href="javascript:void(0);" class="list-group-item list-group-item-action" v-bind:class="{active: selected}" v-on:click="toggleSelectedRecipe"> {{ recipename }}</a>'
+    '<a href="javascript:void(0);" class="list-group-item list-group-item-action" v-bind:class="{active: selected}" v-on:click="toggleSelectedRecipe"> {{ recipename }} </a>'
 });
 
 /* ---------- VUE instance ------------*/
@@ -133,29 +200,28 @@ var vm = new Vue({
     onCopy: function(event) {
       alert(
         "Folgende Liste ist in die Zwischenablage kopiert:\n\n" + event.text
-      );
+      )
     },
-    generateIngredientString() {
+    
+    generateIngredientString: function() {
+      console.log("generateIngredientString Funktionsaufruf!");
+      //Warum wird bei jedem Klicken eines Rezeptes diese Funktion aufgerufen? 
+      // Weil sich mit jedem Klick selectedRecipes ändert und die Variable hier verwendet wird? Kann aber nicht sein...
       let selectedRecipesFull = {};
       this.selectedRecipes.forEach(
         recipeName =>
           (selectedRecipesFull[recipeName] = this.recipes[recipeName])
       );
-      console.log(
-        "String: ",
-        createIngredientStringforClipboard(selectedRecipesFull)
-      );
-
       return createIngredientStringforClipboard(selectedRecipesFull);
     },
-    generateMenuString() {
+    generateMenuString: function() {
       this.menuString = createMenueStringforClipboard(this.selectedRecipes);
+    },
+    onError: function() {
+      alert("Fehler beim Kopieren in die Zwischenablage.");
     }
-    // ,
-    // onError: function() {
-    //   alert("Fehler beim Kopieren in die Zwischenablage.");
-    // }
   }
 });
 
-//  Füge noch Allgäuer Käsesuppe hinzu mit Schnittlauch, sowie Sauerbraten, Rezept von Stephan (Tomatensalat mit Basilikum mit Nudeln)
+
+//  Füge noch Allgäuer Käsesuppe hinzu mit Schnittlauch, sowie Sauerbraten
